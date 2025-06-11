@@ -1,0 +1,39 @@
+name: Run Data Pipeline
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:  # permet de lancer manuellement depuis GitHub
+
+jobs:
+  pipeline:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Cloner le dépôt
+        uses: actions/checkout@v3
+
+      - name: 🐍 Installer Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.11
+
+      - name: 📦 Installer les dépendances
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: 🔐 Définir les variables MinIO (depuis les secrets)
+        run: |
+          echo "MINIO_ACCESS_KEY=${{ secrets.MINIO_ACCESS_KEY }}" >> $GITHUB_ENV
+          echo "MINIO_SECRET_KEY=${{ secrets.MINIO_SECRET_KEY }}" >> $GITHUB_ENV
+          echo "MINIO_ENDPOINT=${{ secrets.MINIO_ENDPOINT }}" >> $GITHUB_ENV
+
+      - name: 🚀 Étape 1 - Transformer les données
+        run: python transform_minio_polars.py
+
+      - name: 💾 Étape 2 - Charger dans SQLite
+        run: python load_minio_polars.py
+
+      - name: 🧪 Étape 3 - Tester le pipeline
+        run: python test_pipeline.py

@@ -1,0 +1,6 @@
+polars>=0.20
+fsspec
+s3fs
+python-dotenv
+pandas
+pyarrow

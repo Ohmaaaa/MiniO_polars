@@ -1,0 +1,8 @@
+# Fichiers trop gros à ignorer
+*.csv
+*.db
+*.exe
+*.parquet
+__pycache__/
+.env
+yahoo/
